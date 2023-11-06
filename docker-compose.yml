@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  app:
+    build : ./app/
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - test
+
+  db:
+    image: postgres:14.1
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=test
+    ports:
+      - '5432:5432'
+    networks:
+      - test
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "test", "-p", "5432", "-U", "postgres"]
+      interval: 4s
+      timeout: 4s
+      retries: 5
+
+networks:
+  test:
